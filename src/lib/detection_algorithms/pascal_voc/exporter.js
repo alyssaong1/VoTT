@@ -76,7 +76,6 @@ function Exporter(serverMessages, exportDirPath, classes, taggedFramesCount, fra
         return new Promise((resolve, reject) => {
             var frameName = path.parse(frameFileName).name;
             var b64 = 'data:image/jpeg;base64,' + frameBuffer.toString('base64');
-            alert(b64)
             var img = new Image(); 
             img.onload = function() {   
                 async.waterfall(
