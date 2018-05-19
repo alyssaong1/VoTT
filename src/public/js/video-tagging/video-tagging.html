@@ -414,7 +414,7 @@
                     } else {
                         this.imageIndex = lastTagIndex;
                     }
-                    this.changeImage(`url(file://${this.imagelist[this.imageIndex].replace(/\\/g,"/")})`);
+                    this.changeImage(`url(${this.imagelist[this.imageIndex].url})`);
                     this.playingCallback();
                 }
             } else { //video handling
@@ -779,7 +779,7 @@
     initImageDir: function() {
         if (!this.imagelist) return;
         //$("#rotate").show();
-        this.changeImage(`url(file://${this.imagelist[this.imageIndex].replace(/\\/g,"/")})`);
+        this.changeImage(`url(${this.imagelist[this.imageIndex].url})`);
         var self = this;
         self.frames = self.inputframes? self.inputframes:{};
         self.optionalTags.createTagControls(self.inputtagsarray);
@@ -830,7 +830,9 @@
     changeImage: function(imageUrl){
         this.rotation = 0;
         this.video.style.backgroundImage = encodeURI(imageUrl);
-        this.curImg.src = `${this.imagelist[this.imageIndex]}`;
+        
+        this.curImg.src = `${this.imagelist[this.imageIndex].url}`;
+
         var self = this;
         self.curImg.onload = function() {
             self.controlWrapper.style.display = "block";
@@ -909,7 +911,7 @@
                 if(fireEvents)$('#video-tagging').trigger('stepFwdClicked-BeforeStep');    
                 if (this.imageIndex < this.imagelist.length-1) {
                     this.imageIndex++;
-                    this.changeImage(`url(file://${this.imagelist[this.imageIndex].replace(/\\/g,"/")})`);
+                    this.changeImage(`url(${this.imagelist[this.imageIndex].url})`);
                     this.playingCallback();
                 }
             } else { //video handling
@@ -934,7 +936,7 @@
         if (this.imagelist){//image handling
             if (this.imageIndex > 0) {
                 this.imageIndex--;
-                this.changeImage(`url(file://${this.imagelist[this.imageIndex].replace(/\\/g,"/")})`);
+                this.changeImage(`url(${this.imagelist[this.imageIndex].url})`);
                 this.playingCallback();
             }
         } 

@@ -4,6 +4,9 @@ const path = require('path');
 const replace = require("replace");
 const detectionUtils = require('../detectionUtils.js');
 
+var azure = require('azure-storage');
+var blobService = azure.createBlobService("DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=vKcMJ9pTOG8fgx+PUgYdegBJaR+tykBfroIpUVqRaEEPutJdgMbKtbkyxRjk2YRnkjhU3tmo7YwxC5jZSUKyAg==;EndpointSuffix=core.windows.net");
+
 // The Exporter interface - provides a mean to export the tagged frames
 // data in the expected data format of the detection algorithm
 // Constructor parameters:
@@ -13,8 +16,9 @@ const detectionUtils = require('../detectionUtils.js');
 //  frameWidth - The width (in pixels) of the image frame
 //  frameHeight - The height (in pixels) of the image frame
 //  testSplit - the percent of tragged frames to reserve for test set defaults to 20%
-function Exporter(exportDirPath, classes, taggedFramesCount, frameWidth, frameHeight, testSplit) {
+function Exporter(serverMessages, exportDirPath, classes, taggedFramesCount, frameWidth, frameHeight, testSplit) {
     var self = this;
+    self.serverMessages = serverMessages;
     self.exportDirPath = exportDirPath;
     self.labelMap = path.join(self.exportDirPath,"pascal_label_map.pbtxt");
     self.annDirPath  = path.join(self.exportDirPath, 'Annotations');
@@ -68,10 +72,11 @@ function Exporter(exportDirPath, classes, taggedFramesCount, frameWidth, frameHe
     //         Where (x1,y1) and (x2,y2) are the coordinates of the top left and bottom right corner
     //         of the bounding boxes (respectively), and 'class' is the name of the class.
     // Returns: A Promise object that resolves when the operation completes
-    this.exportFrame = function exportFrame(frameFileName, frameBuffer, tags) {
+    this.exportFrame = function exportFrame(frameFileName, index, frameBuffer, tags) {
         return new Promise((resolve, reject) => {
             var frameName = path.parse(frameFileName).name;
             var b64 = 'data:image/jpeg;base64,' + frameBuffer.toString('base64');
+            alert(b64)
             var img = new Image(); 
             img.onload = function() {   
                 async.waterfall(
@@ -116,7 +121,22 @@ function Exporter(exportDirPath, classes, taggedFramesCount, frameWidth, frameHe
                         }
                         xmlData += '</annotation\>'
                         var outpath = `${path.join(self.annDirPath, frameFileName).slice(0, -4)}.xml`
-                        fs.writeFile(outpath, xmlData, cb);                 
+                        // Replace this with saving to blob and deleting from queue
+                        fs.writeFile(outpath, xmlData, (err) => {
+                            // Save output to blob
+                            blobService.createBlockBlobFromLocalFile('annotations', `${frameFileName.slice(0, -4)}.xml`, outpath, function(error, result, response) {
+                                if (!error) {
+                                    // file uploaded
+                                    // Delete from queue
+                                    queueService.deleteMessage(queueName, serverMessages[index].messageId, serverMessages[index].popReceipt, function(error) {
+                                        if (!error) {
+                                          // Message deleted
+                                        }
+                                        cb()
+                                    });
+                                }
+                            });
+                        });      
                     }, 
                     function cleanOldMainData(cb){
                         replace({  

@@ -22,8 +22,8 @@ function DetectionAlgorithmManager() {
     },
 
     //Set the  exporter to the specified detection module
-    this.initExporter = function(algorithm, exportDirPath, classes, posFramesCount, frameWidth, frameHeight, testSplit, cb) {
-         var exporter = new detection_modules[algorithm].Exporter(exportDirPath, classes, posFramesCount, frameWidth, frameHeight, testSplit);
+    this.initExporter = function(serverMessages, algorithm, exportDirPath, classes, posFramesCount, frameWidth, frameHeight, testSplit, cb) {
+         var exporter = new detection_modules[algorithm].Exporter(serverMessages, exportDirPath, classes, posFramesCount, frameWidth, frameHeight, testSplit);
          exporter.init().then(()=> {
              return cb(null, exporter.exportFrame);         
          }).catch((err) =>{

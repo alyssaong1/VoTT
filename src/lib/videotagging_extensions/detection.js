@@ -68,7 +68,7 @@ function Detection(videotagging, visitedFrames) {
             imagesProcessed = 0;
             dir.forEach( (imagePath, index) => {
                 var img = new Image();
-                img.src = imagePath;
+                img.src = imagePath.url;
                 img.onload = function () {
                     var frameCanvas = document.createElement("canvas");
                     frameCanvas.width = img.width;
@@ -76,7 +76,7 @@ function Detection(videotagging, visitedFrames) {
                     // Copy the image contents to the canvas
                     var canvasContext = frameCanvas.getContext("2d");
                     canvasContext.drawImage(img, 0, 0);
-                    frameHandler(path.basename(imagePath), index, frameCanvas, canvasContext,() => {
+                    frameHandler(path.basename(imagePath.url), index, frameCanvas, canvasContext,() => {
                         imagesProcessed += 1;
                         if (imagesProcessed == dir.length){
                             resolve();
@@ -90,7 +90,7 @@ function Detection(videotagging, visitedFrames) {
     // TODO: Abstract to a module that receives a "framesReader" object as input
     //exports frames to the selected detection algorithm format  for model training
     this.export = function(dir, method, exportUntil, exportPath, testSplit, cb) {
-        self.detectionAlgorithmManager.initExporter(method, exportPath, self.videotagging.inputtagsarray, 
+        self.detectionAlgorithmManager.initExporter(dir, method, exportPath, self.videotagging.inputtagsarray, 
                                             Object.keys(self.videotagging.frames).length,
                                             self.videotagging.video.videoWidth,
                                             self.videotagging.video.videoHeight,
@@ -154,7 +154,7 @@ function Detection(videotagging, visitedFrames) {
 
             //draw the frame to the canvas
             var buf = self.canvasToJpgBuffer(frameCanvas, canvasContext);
-            exporter(frameName, buf, frameTags)
+            exporter(frameName, frameId, buf, frameTags)
                 .then(()=>{
                     frameExportCb();
                 }, (err) => {
