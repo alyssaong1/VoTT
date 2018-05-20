@@ -17,7 +17,7 @@ var saveState,
 // Set up Azure Queue Storage Service
 const azure = require('azure-storage');
 const queueService = azure.createQueueService(
-    'DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=vKcMJ9pTOG8fgx+PUgYdegBJaR+tykBfroIpUVqRaEEPutJdgMbKtbkyxRjk2YRnkjhU3tmo7YwxC5jZSUKyAg==;EndpointSuffix=core.windows.net'
+    'DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=PqLpFLkyaG42i/bE+uArALTuZKXpLsLzzjLhciUT0ukiT/bHujOnktKfWQQL3A25whXmxR1bTmKzfSxpRpP92w==;EndpointSuffix=core.windows.net'
 );
 queueName = 'outqueue';
 let options = {
@@ -175,7 +175,7 @@ function fileSelected(filepath) {
     if (filepath) {
         //checking if a video is dropped
         let pathName = filepath.path;
-        openPath(pathName, false);
+        openPath(pathName, false, false);
     } else {
         // showing system open dialog
         dialog.showOpenDialog(
@@ -184,11 +184,15 @@ function fileSelected(filepath) {
                 properties: ['openFile']
             },
             function(pathName) {
-                if (pathName) openPath(pathName[0], false);
+                if (pathName) openPath(pathName[0], false, false);
                 else $('#load-message-container').show();
             }
         );
     }
+}
+
+function cloudSelected() {
+    openPath('config', false, true);
 }
 
 function folderSelected(folderpath) {
@@ -199,13 +203,13 @@ function folderSelected(folderpath) {
             properties: ['openDirectory']
         },
         function(pathName) {
-            if (pathName) openPath(pathName[0], true);
+            if (pathName) openPath(pathName[0], true, false);
             else $('#load-message-container').show();
         }
     );
 }
 
-function openPath(pathName, isDir) {
+function openPath(pathName, isDir, isCloud) {
     // show configuration
     $('#load-message-container').hide();
     $('#video-tagging-container').hide();
@@ -219,29 +223,42 @@ function openPath(pathName, isDir) {
     if (isDir) {
         $('#framerateGroup').hide();
         $('#suggestGroup').hide();
+        $('#cloudSettingsGroup').hide();
+    } else if (isCloud) {
+        $('#cloudSettingsGroup').show();
+        $('#framerateGroup').hide();
+        $('#suggestGroup').hide();
     } else {
         $('#framerateGroup').show();
         $('#suggestGroup').show();
+        $('#cloudSettingsGroup').hide();
     }
 
-    assetFolder = path.join(path.dirname(pathName), `${path.basename(pathName, path.extname(pathName))}_output`);
+    if (isCloud) {
+        // Just use config as the pathname to create the json object
+        assetFolder = pathName;
+    } else {
+        assetFolder = path.join(path.dirname(pathName), `${path.basename(pathName, path.extname(pathName))}_output`);
+    }
 
     try {
-        var config = require(`${pathName}.json`);
-        saveState = JSON.stringify(config);
-        //restore config
-        $('#inputtags').val(config.inputTags);
-        config.inputTags.split(',').forEach(tag => {
-            $('#inputtags').tagsinput('add', tag);
-        });
-        if (config.framerate) {
-            $('#framerate').val(config.framerate);
-        }
-        if (config.suggestiontype) {
-            $('#suggestiontype').val(config.suggestiontype);
-        }
-        if (config.scd) {
-            document.getElementById('scd').checked = config.scd;
+        if (!isCloud) {
+            var config = require(`${pathName}.json`);
+            saveState = JSON.stringify(config);
+            //restore config
+            $('#inputtags').val(config.inputTags);
+            config.inputTags.split(',').forEach(tag => {
+                $('#inputtags').tagsinput('add', tag);
+            });
+            if (config.framerate) {
+                $('#framerate').val(config.framerate);
+            }
+            if (config.suggestiontype) {
+                $('#suggestiontype').val(config.suggestiontype);
+            }
+            if (config.scd) {
+                document.getElementById('scd').checked = config.scd;
+            }
         }
     } catch (e) {
         console.log(`Error loading save file ${e.message}`);
@@ -276,9 +293,10 @@ function openPath(pathName, isDir) {
 
             videotagging.src = ''; // ensures reload if user opens same video
 
-            if (isDir) {
+            if (isCloud) {
                 $('title').text(`Image Tagging Job: ${path.dirname(pathName)}`); //set title indicator
 
+                videotagging.isCloud = true;
                 queueService.getMessages(queueName, options, function(error, serverMessages) {
                     if (!error) {
                         // Process the message in less than 30 seconds, the message
@@ -328,14 +346,50 @@ function openPath(pathName, isDir) {
                             $('#video-tagging').off('stepFwdClicked-BeforeStep');
                             $('#video-tagging').on('stepFwdClicked-BeforeStep', save);
                         } else {
-                            alert('No images were in the selected directory. Please choose an Image directory.');
-                            return folderSelected();
+                            alert('No images exist.');
+                            return cloudSelected();
                         }
                     }
                 });
+            } else if (isDir) {
+                $('title').text(`Image Tagging Job: ${path.dirname(pathName)}`); //set title indicator
+                //get list of images in directory
+                var files = fs.readdirSync(pathName);
+
+                videotagging.isCloud = false;
+                videotagging.imagelist = files.filter(function(file) {
+                    return file.match(/.(jpg|jpeg|png|gif)$/i);
+                });
+                
+                if (videotagging.imagelist.length) {
+                    videotagging.imagelist = videotagging.imagelist.map(filepath => {
+                        return path.join(pathName, filepath);
+                    });
+                    videotagging.src = pathName;
+                    console.info(videotagging.src)
+                    //track visited frames
+                    $('#video-tagging').off('stepFwdClicked-AfterStep', updateVisitedFrames);
+                    $('#video-tagging').on('stepFwdClicked-AfterStep', updateVisitedFrames);
+                    $('#video-tagging').on('stepFwdClicked-AfterStep', () => {
+                        //update title to match src
+                        $('title').text(`Image Tagging Job: ${path.basename(videotagging.curImg.src)}`);
+                    });
+                    $('#video-tagging').on('stepBwdClicked-AfterStep', () => {
+                        //update title to match src
+                        $('title').text(`Image Tagging Job: ${path.basename(videotagging.curImg.src)}`);
+                    });
+
+                    //auto-save
+                    $('#video-tagging').off('stepFwdClicked-BeforeStep');
+                    $('#video-tagging').on('stepFwdClicked-BeforeStep', save);
+                } else {
+                    alert('No images were in the selected directory. Please choose an Image directory.');
+                    return folderSelected();
+                }
             } else {
                 $('title').text(`Video Tagging Job: ${path.basename(pathName, path.extname(pathName))}`); //set title indicator
                 videotagging.disableImageDir();
+                videotagging.isCloud = false;
                 videotagging.src = pathName;
                 //set start time
                 videotagging.video.oncanplay = function() {

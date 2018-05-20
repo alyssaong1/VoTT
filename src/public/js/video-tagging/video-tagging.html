@@ -103,6 +103,7 @@
       multiregions: Number,
       regionsize: Number,
       imagelist: Object,
+      isCloud: Boolean,
       inputtagsarray:Object,
       inputframes: Object,
       src: {
@@ -779,7 +780,7 @@
     initImageDir: function() {
         if (!this.imagelist) return;
         //$("#rotate").show();
-        this.changeImage(`url(${this.imagelist[this.imageIndex].url})`);
+        this.changeImage(this.imagelist[this.imageIndex]);
         var self = this;
         self.frames = self.inputframes? self.inputframes:{};
         self.optionalTags.createTagControls(self.inputtagsarray);
@@ -829,10 +830,15 @@
     },
     changeImage: function(imageUrl){
         this.rotation = 0;
-        this.video.style.backgroundImage = encodeURI(imageUrl);
-        
-        this.curImg.src = `${this.imagelist[this.imageIndex].url}`;
 
+        if (this.isCloud) {
+            this.video.style.backgroundImage = encodeURI(`url(${this.imagelist[this.imageIndex].url})`);
+            this.curImg.src = `${this.imagelist[this.imageIndex].url}`;
+        } else {
+            this.video.style.backgroundImage = encodeURI(`url(file://${this.imagelist[this.imageIndex].replace(/\\/g,"/")})`);
+            this.curImg.src = `${this.imagelist[this.imageIndex]}`;
+        }
+        
         var self = this;
         self.curImg.onload = function() {
             self.controlWrapper.style.display = "block";

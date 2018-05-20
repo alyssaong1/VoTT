@@ -25,14 +25,14 @@ html, body {
 
 #dirImage  
  {
-  width:300px;
+  width:180px;
   display:inline-block;
   margin-right: 20px;
  }
 
 
 #vidImage{
-  width:300px;
+  width:180px;
   display:inline-block;
   margin-left: 20px;
 }
