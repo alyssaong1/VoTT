@@ -5,7 +5,7 @@ const replace = require("replace");
 const detectionUtils = require('../detectionUtils.js');
 
 var azure = require('azure-storage');
-var blobService = azure.createBlobService("DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=vKcMJ9pTOG8fgx+PUgYdegBJaR+tykBfroIpUVqRaEEPutJdgMbKtbkyxRjk2YRnkjhU3tmo7YwxC5jZSUKyAg==;EndpointSuffix=core.windows.net");
+var blobService = azure.createBlobService("DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=PqLpFLkyaG42i/bE+uArALTuZKXpLsLzzjLhciUT0ukiT/bHujOnktKfWQQL3A25whXmxR1bTmKzfSxpRpP92w==;EndpointSuffix=core.windows.net");
 
 // The Exporter interface - provides a mean to export the tagged frames
 // data in the expected data format of the detection algorithm
@@ -39,7 +39,7 @@ function Exporter(serverMessages, exportDirPath, classes, taggedFramesCount, fra
     this.init = function init() {
          self.posFrameIndex = 0;
          self.testFrameIndecies = detectionUtils.generateTestIndecies(self.testSplit, taggedFramesCount);
-
+        
          return new Promise((resolve, reject) => {
             async.waterfall([
                 async.eachSeries.bind(null,[self.exportDirPath, self.annDirPath, self.imgSetsDirPath, self.mainDirPath, self.jpgImgsDirPath], detectionUtils.ensureDirExists),
@@ -130,9 +130,13 @@ function Exporter(serverMessages, exportDirPath, classes, taggedFramesCount, fra
                                     queueService.deleteMessage(queueName, serverMessages[index].messageId, serverMessages[index].popReceipt, function(error) {
                                         if (!error) {
                                           // Message deleted
+                                          cb()
+                                        } else {
+                                            console.info(error)
                                         }
-                                        cb()
                                     });
+                                } else {
+                                    console.info(error)
                                 }
                             });
                         });      

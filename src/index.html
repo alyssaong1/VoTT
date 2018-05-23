@@ -31,37 +31,49 @@
 
   <div id="load-message-container">
     <div id="load-text">
-      <h2>Select an
+      <h2>Select
+        <b>Cloud</b>,
         <b>Image Directory</b> or
         <b>Video</b> for tagging.</h2>
     </div>
     <div id="load-icons">
-      <svg id="dirImage" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" onclick="cloudSelected()">
-        <title>images</title>
+      <!-- <svg id="dirImage" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" onclick="cloudSelected()">
+        <title>cloud</title>
         <path d="M34 4h-2v-2c0-1.1-0.9-2-2-2h-28c-1.1 0-2 0.9-2 2v24c0 1.1 0.9 2 2 2h2v2c0 1.1 0.9 2 2 2h28c1.1 0 2-0.9 2-2v-24c0-1.1-0.9-2-2-2zM4 6v20h-1.996c-0.001-0.001-0.003-0.002-0.004-0.004v-23.993c0.001-0.001 0.002-0.003 0.004-0.004h27.993c0.001 0.001 0.003 0.002 0.004 0.004v1.996h-24c-1.1 0-2 0.9-2 2v0zM34 29.996c-0.001 0.001-0.002 0.003-0.004 0.004h-27.993c-0.001-0.001-0.003-0.002-0.004-0.004v-23.993c0.001-0.001 0.002-0.003 0.004-0.004h27.993c0.001 0.001 0.003 0.002 0.004 0.004v23.993z"></path>
         <path d="M30 11c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
         <path d="M32 28h-24v-4l7-12 8 10h2l7-6z"></path>
-      </svg>
+      </svg> -->
+      <svg id="cloudImage" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+        viewBox="0 0 512 512" xml:space="preserve" onclick="cloudSelected()">
+        <path d="M447.438,229.688C447.5,227.75,448,225.938,448,224c0-70.688-57.313-128-128-128c-47.938,0-89.219,26.688-111.156,65.688
+     C203.375,160.719,197.781,160,192,160c-41.938,0-77.219,27.063-90.281,64.563C99.813,224.438,97.969,224,96,224c-53,0-96,43-96,96
+     s43,96,96,96h320c53,0,96-43,96-96C512,278.063,484.938,242.75,447.438,229.688z" />
+     </svg>
+        <svg id="dirImage" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" onclick="folderSelected()">
+          <title>images</title>
+          <path d="M34 4h-2v-2c0-1.1-0.9-2-2-2h-28c-1.1 0-2 0.9-2 2v24c0 1.1 0.9 2 2 2h2v2c0 1.1 0.9 2 2 2h28c1.1 0 2-0.9 2-2v-24c0-1.1-0.9-2-2-2zM4 6v20h-1.996c-0.001-0.001-0.003-0.002-0.004-0.004v-23.993c0.001-0.001 0.002-0.003 0.004-0.004h27.993c0.001 0.001 0.003 0.002 0.004 0.004v1.996h-24c-1.1 0-2 0.9-2 2v0zM34 29.996c-0.001 0.001-0.002 0.003-0.004 0.004h-27.993c-0.001-0.001-0.003-0.002-0.004-0.004v-23.993c0.001-0.001 0.002-0.003 0.004-0.004h27.993c0.001 0.001 0.003 0.002 0.004 0.004v23.993z"></path>
+          <path d="M30 11c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
+          <path d="M32 28h-24v-4l7-12 8 10h2l7-6z"></path>
+        </svg>
 
-      <svg id="dirImage" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" onclick="folderSelected()">
-        <title>images</title>
-        <path d="M34 4h-2v-2c0-1.1-0.9-2-2-2h-28c-1.1 0-2 0.9-2 2v24c0 1.1 0.9 2 2 2h2v2c0 1.1 0.9 2 2 2h28c1.1 0 2-0.9 2-2v-24c0-1.1-0.9-2-2-2zM4 6v20h-1.996c-0.001-0.001-0.003-0.002-0.004-0.004v-23.993c0.001-0.001 0.002-0.003 0.004-0.004h27.993c0.001 0.001 0.003 0.002 0.004 0.004v1.996h-24c-1.1 0-2 0.9-2 2v0zM34 29.996c-0.001 0.001-0.002 0.003-0.004 0.004h-27.993c-0.001-0.001-0.003-0.002-0.004-0.004v-23.993c0.001-0.001 0.002-0.003 0.004-0.004h27.993c0.001 0.001 0.003 0.002 0.004 0.004v23.993z"></path>
-        <path d="M30 11c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
-        <path d="M32 28h-24v-4l7-12 8 10h2l7-6z"></path>
-      </svg>
-
-      <svg id="vidImage" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" onclick="fileSelected();">
-        <title>play</title>
-        <path d="M30.662 5.003c-4.488-0.645-9.448-1.003-14.662-1.003s-10.174 0.358-14.662 1.003c-0.86 3.366-1.338 7.086-1.338 10.997s0.477 7.63 1.338 10.997c4.489 0.645 9.448 1.003 14.662 1.003s10.174-0.358 14.662-1.003c0.86-3.366 1.338-7.086 1.338-10.997s-0.477-7.63-1.338-10.997zM12 22v-12l10 6-10 6z"></path>
-      </svg>
+        <svg id="vidImage" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" onclick="fileSelected();">
+          <title>play</title>
+          <path d="M30.662 5.003c-4.488-0.645-9.448-1.003-14.662-1.003s-10.174 0.358-14.662 1.003c-0.86 3.366-1.338 7.086-1.338 10.997s0.477 7.63 1.338 10.997c4.489 0.645 9.448 1.003 14.662 1.003s10.174-0.358 14.662-1.003c0.86-3.366 1.338-7.086 1.338-10.997s-0.477-7.63-1.338-10.997zM12 22v-12l10 6-10 6z"></path>
+        </svg>
     </div>
   </div>
   <div id='load-form-container' style="display: none">
     <h2>Tagging Job Configuration</h2>
     <hr>
     <div class="form-group" id="cloudSettingsGroup">
-      <label title="(Connection string to your storage account)">Storage Connection String</label>
-      <input class="form-control" id="connstring" type="text" value="" />
+      <label title="(Connection string to your storage account)">Storage Connection String </label>
+      <input class="form-control" id="connstring" type="text" value="" required/>
+      <label title="(Name of container where images are stored)">Input Blob Container Name</label>
+      <input class="form-control" id="inputcontainername" type="text" value="" required/>
+      <label title="(Name of container where annotations are saved to)">Output Blob Container Name</label>
+      <input class="form-control" id="outputcontainername" type="text" value="" required/>
+      <label title="(Name of your queue)">Queue Name</label>
+      <input class="form-control" id="queuename" type="text" value="" required/>
     </div>
     <div class="form-group" id="framerateGroup">
       <label title="(How many frames to extract per a second of video!)">Frame Extraction Rate (frames per a video second)</label>

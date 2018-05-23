@@ -12,6 +12,7 @@ var saveState,
     videotagging,
     detection,
     trackingExtension,
+    queueName,
     assetFolder;
 
 // Set up Azure Queue Storage Service
@@ -19,10 +20,9 @@ const azure = require('azure-storage');
 const queueService = azure.createQueueService(
     'DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=PqLpFLkyaG42i/bE+uArALTuZKXpLsLzzjLhciUT0ukiT/bHujOnktKfWQQL3A25whXmxR1bTmKzfSxpRpP92w==;EndpointSuffix=core.windows.net'
 );
-queueName = 'outqueue';
 let options = {
-    numOfMessages: 3,
-    visibilityTimeout: 40
+    numOfMessages: 3, // Number of images dequeued each time
+    visibilityTimeout: 40 // Number of seconds we have to process the image
 };
 
 $(document).ready(() => {
@@ -288,47 +288,42 @@ function openPath(pathName, isDir, isCloud) {
                 visitedFrames = new Set(config.visitedFrames);
             } else {
                 videotagging.inputframes = {};
-                visitedFrames = isDir ? new Set([0]) : new Set();
+                if (isCloud) {
+                    // Only supports images for cloud at the moment
+                    visitedFrames = new Set([0]);
+                } else {
+                    visitedFrames = isDir ? new Set([0]) : new Set();
+                }
             }
 
             videotagging.src = ''; // ensures reload if user opens same video
 
             if (isCloud) {
-                $('title').text(`Image Tagging Job: ${path.dirname(pathName)}`); //set title indicator
+                queueName = $('#queuename').val();
+                $('title').text(`Image Tagging Job: ${queueName}`); //set title indicator
 
                 videotagging.isCloud = true;
+
                 queueService.getMessages(queueName, options, function(error, serverMessages) {
                     if (!error) {
                         // Process the message in less than 30 seconds, the message
                         // text is available in serverMessages[0].messageText
 
-                        // files = [
-                        //     'https://images-na.ssl-images-amazon.com/images/I/81fYpw6iY8L._SY355_.jpg',
-                        //     'https://www.dollargeneral.com/media/catalog/product/cache/image/700x700/e9c3970ab036de70892d86c6d221abfe/t/i/tide_downy_37oz.jpg'
-                        // ];
-
                         let files = [];
                         for (var i = 0; i < serverMessages.length; i++) {
                             let msg = Buffer.from(serverMessages[i].messageText, 'base64').toString('ascii');
-                            serverMessages[i].url = 'https://objdetectionblob.blob.core.windows.net/raw/' + msg;
+                            serverMessages[i].url = `https://objdetectionblob.blob.core.windows.net/${$('#inputcontainername').val()}/${msg}`;
                             files.push(serverMessages[i]);
                         }
 
-                        // videotagging.imagelist = files.filter(function(file) {
-                        //     return file.match(/.(jpg|jpeg|png|gif)$/i);
-                        // });
                         videotagging.imagelist = serverMessages;
-                        //get list of images in directory
-                        // var files = fs.readdirSync(pathName);
 
-                        // videotagging.imagelist = files.filter(function(file) {
-                        //     return file.match(/.(jpg|jpeg|png|gif)$/i);
-                        // });
+                        // Filter by image files only
+                        videotagging.imagelist = files.filter(function(file) {
+                            return file.url.match(/.(jpg|jpeg|png|gif)$/i);
+                        });
 
                         if (videotagging.imagelist.length) {
-                            // videotagging.imagelist = videotagging.imagelist.map(filepath => {
-                            //     return path.join(pathName, filepath);
-                            // });
                             videotagging.src = pathName;
                             //track visited frames
                             $('#video-tagging').off('stepFwdClicked-AfterStep', updateVisitedFrames);

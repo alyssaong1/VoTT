@@ -1,1 +1,1 @@
-{"frames":{},"framerate":"1","inputTags":"hello","suggestiontype":"track","scd":false,"visitedFrames":[1]}
+{"frames":{"0":[{"x1":80,"y1":143,"x2":160,"y2":204,"id":0,"width":226,"height":302,"type":"Rectangle","tags":["sadfdsa"],"name":1},{"x1":103,"y1":54,"x2":170,"y2":107,"id":1,"width":226,"height":302,"type":"Rectangle","tags":["sadfdsa"],"name":2}]},"framerate":"1","inputTags":"sadfdsa","suggestiontype":"track","scd":false,"visitedFrames":[0,1]}

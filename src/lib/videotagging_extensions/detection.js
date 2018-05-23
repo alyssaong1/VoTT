@@ -53,7 +53,7 @@ function Detection(videotagging, visitedFrames) {
                 }
                 
                 var frameName = `${path.basename(self.videotagging.src, path.extname(self.videotagging.src))}_frame_${frameId}.jpg`
-                frameHandler(frameName, frameId, frameCanvas, canvasContext, () => {
+                frameHandler(frameName, frameId, frameCanvas, canvasContext, (err) => {
                     if (!lastFrame) {
                         self.videotagging.stepFwdClicked(false);
                     }
@@ -68,7 +68,11 @@ function Detection(videotagging, visitedFrames) {
             imagesProcessed = 0;
             dir.forEach( (imagePath, index) => {
                 var img = new Image();
-                img.src = imagePath.url;
+                if (videotagging.isCloud) {
+                    imagePath = imagePath.url;
+                }
+                
+                img.src = imagePath
                 img.onload = function () {
                     var frameCanvas = document.createElement("canvas");
                     frameCanvas.width = img.width;
@@ -76,7 +80,8 @@ function Detection(videotagging, visitedFrames) {
                     // Copy the image contents to the canvas
                     var canvasContext = frameCanvas.getContext("2d");
                     canvasContext.drawImage(img, 0, 0);
-                    frameHandler(path.basename(imagePath.url), index, frameCanvas, canvasContext,() => {
+
+                    frameHandler(path.basename(imagePath), index, frameCanvas, canvasContext,() => {
                         imagesProcessed += 1;
                         if (imagesProcessed == dir.length){
                             resolve();
@@ -154,6 +159,7 @@ function Detection(videotagging, visitedFrames) {
 
             //draw the frame to the canvas
             var buf = self.canvasToJpgBuffer(frameCanvas, canvasContext);
+
             exporter(frameName, frameId, buf, frameTags)
                 .then(()=>{
                     frameExportCb();

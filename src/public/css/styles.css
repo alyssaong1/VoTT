@@ -23,10 +23,19 @@ html, body {
     margin-right: auto;
 }
 
+#cloudImage
+{
+    width:180px;
+    display:inline-block;
+    /* margin-left:20px; */
+    margin-right:20px;
+}
+
 #dirImage  
  {
   width:180px;
   display:inline-block;
+  margin-left:20px;
   margin-right: 20px;
  }
 
