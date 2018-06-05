@@ -17,7 +17,7 @@ var saveState,
 // Set up Azure Queue Storage Service
 const azure = require('azure-storage');
 const queueService = azure.createQueueService(
-    'DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=vKcMJ9pTOG8fgx+PUgYdegBJaR+tykBfroIpUVqRaEEPutJdgMbKtbkyxRjk2YRnkjhU3tmo7YwxC5jZSUKyAg==;EndpointSuffix=core.windows.net'
+    'YOUR CONNECTION STRING HERE'
 );
 queueName = 'outqueue';
 let options = {
