@@ -5,7 +5,7 @@ const replace = require("replace");
 const detectionUtils = require('../detectionUtils.js');
 
 var azure = require('azure-storage');
-var blobService = azure.createBlobService("DefaultEndpointsProtocol=https;AccountName=objdetectionblob;AccountKey=vKcMJ9pTOG8fgx+PUgYdegBJaR+tykBfroIpUVqRaEEPutJdgMbKtbkyxRjk2YRnkjhU3tmo7YwxC5jZSUKyAg==;EndpointSuffix=core.windows.net");
+var blobService = azure.createBlobService("YOUR CONNECTION STRING HERE");
 
 // The Exporter interface - provides a mean to export the tagged frames
 // data in the expected data format of the detection algorithm
